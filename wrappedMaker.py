@@ -17,6 +17,7 @@ listening_time_rolling_window = 31
 top_songs_rolling_window = 31
 top_artists_rolling_window = 31
 
+# The pathes to look for streaming history and where to write the finished pdf
 pdf_target_path = Path(".")
 history_src_dir = Path("./StreamingHistory")
 
@@ -33,12 +34,12 @@ if __name__ == "__main__":
         history_src_dir=history_src_dir,
     )
 
-    wrapp.fontPage()
-    wrapp.topSongs()
-    wrapp.topSongsListenChart()
-    wrapp.topArtists()
-    wrapp.topArtistsChart()
-    wrapp.playTimeChart()
-    wrapp.playTimePerHourInDay()
-    wrapp.playTimePerWeekday()
-    wrapp.writeToFile()
+    wrapp.front_page()
+    wrapp.top_songs()
+    wrapp.top_songs_chart()
+    wrapp.top_artists()
+    wrapp.top_artists_chart()
+    wrapp.play_time_chart()
+    wrapp.play_time_per_hour_in_day()
+    wrapp.play_time_per_weekday()
+    wrapp.write_to_file()
