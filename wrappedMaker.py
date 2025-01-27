@@ -5,12 +5,12 @@ from pathlib import Path
 
 # Settings
 # The data period that should be counted
-start_date = date(2020, 1, 1)
+start_date = date(2010, 1, 1)
 end_date = date(2030, 1, 1)
 
 # Number of artist / songs to be featured on the top lists
 nrof_top_artists = 5
-nrof_top_songs = 10
+nrof_top_songs = 20
 
 # The windows for the rolling averages for the charts
 listening_time_rolling_window = 31
@@ -19,17 +19,12 @@ top_artists_rolling_window = 31
 
 # The pathes to look for streaming history and where to write the finished pdf
 pdf_target_path = Path(".")
-history_src_dir = Path("./StreamingHistory")
+history_src_dir = Path("./Sebbe_streaming_history")
 
 if __name__ == "__main__":
     wrapp = pr.WrappedMaker(
         start_date=start_date,
         end_date=end_date,
-        nrof_top_artist=nrof_top_artists,
-        nrof_top_songs=nrof_top_songs,
-        play_time_rolling=listening_time_rolling_window,
-        top_songs_rolling=top_songs_rolling_window,
-        top_artists_rolling=top_artists_rolling_window,
         pdf_target_path=pdf_target_path,
         history_src_dir=history_src_dir,
     )
@@ -39,7 +34,11 @@ if __name__ == "__main__":
     wrapp.top_songs_chart()
     wrapp.top_artists()
     wrapp.top_artists_chart()
+    wrapp.song_skip_stats()
+    wrapp.least_skipped_top_songs(10)
     wrapp.play_time_chart()
     wrapp.play_time_per_hour_in_day()
     wrapp.play_time_per_weekday()
+    wrapp.device_listening_time()
+    wrapp.device_listening_chart()
     wrapp.write_to_file()
