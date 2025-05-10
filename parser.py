@@ -1,6 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import japanize_matplotlib
+import matplotlib.font_manager as fm
+
+plt.rcParams["font.family"] = "Meiryo"
+
 import re
 from pathlib import Path
 from datetime import date, timedelta
@@ -532,10 +535,10 @@ class WrappedMaker:
         for index, row in enumerate(grouped.iterrows()):
             value = row[1]
             x_loc = value["percent_skipped"] / 2
-            x_align = 'center'
+            x_align = "center"
             if value["percent_skipped"] < max_skip_percent / 4:
                 x_loc = value["percent_skipped"]
-                x_align = 'left'
+                x_align = "left"
             plt.text(
                 x=x_loc,
                 y=index,
@@ -563,20 +566,29 @@ class WrappedMaker:
                 "-- WARNING -- \nCan not do 'device_listening_time' due to list not being purely extended entries"
             )
             return
-        listen_time_per_device = self._df.groupby('platform')['msPlayed'].sum()
+        listen_time_per_device = self._df.groupby("platform")["msPlayed"].sum()
 
         # Define partial string matches and their corresponding labels
         partial_strings = {
-            'Windows': 'Windows',
-            'Linux': 'Linux',
-            r'ps5|ps4|ps3|ps2|playstation': 'PlayStation',
-            'Android': 'Android',
-            r'ios': 'iOS',
-            r'osx': 'MacOS'
+            "Windows": "Windows",
+            "Linux": "Linux",
+            r"ps5|ps4|ps3|ps2|playstation": "PlayStation",
+            "Android": "Android",
+            r"ios": "iOS",
+            r"osx": "MacOS",
         }
 
         # Split the DataFrame based on partial string matches and calculate the sum of msPlayed for each group
-        platforms = [(label, listen_time_per_device[listen_time_per_device.index.str.contains(partial, case=False)].sum() / 3600000) for partial, label in partial_strings.items()]
+        platforms = [
+            (
+                label,
+                listen_time_per_device[
+                    listen_time_per_device.index.str.contains(partial, case=False)
+                ].sum()
+                / 3600000,
+            )
+            for partial, label in partial_strings.items()
+        ]
 
         # Calculate the total listening time for all platforms
         total_listening_time = listen_time_per_device.sum() / 3600000
@@ -604,7 +616,7 @@ class WrappedMaker:
                 x=value / 2,
                 y=index,
                 s=f"{round(value)}",
-                ha='center',
+                ha="center",
                 va="center",
                 fontsize=15,
             )
@@ -629,33 +641,47 @@ class WrappedMaker:
             )
             return
         # Group by platform and resample by day, summing the msPlayed for each day
-        listen_time_per_device = self._df.groupby(["platform", pd.Grouper(key="endTime", freq="D")])['msPlayed'].sum().reset_index()
+        listen_time_per_device = (
+            self._df.groupby(["platform", pd.Grouper(key="endTime", freq="D")])[
+                "msPlayed"
+            ]
+            .sum()
+            .reset_index()
+        )
 
         # Define partial string matches and their corresponding labels
         partial_strings = {
-            'Windows': 'Windows',
-            'Linux': 'Linux',
-            r'ps5|ps4|ps3|ps2|playstation': 'PlayStation',
-            'Android': 'Android',
-            r'ios': 'iOS',
-            r'osx': 'macOS'
+            "Windows": "Windows",
+            "Linux": "Linux",
+            r"ps5|ps4|ps3|ps2|playstation": "PlayStation",
+            "Android": "Android",
+            r"ios": "iOS",
+            r"osx": "macOS",
         }
 
         plt.figure(figsize=(16, 9))
 
         # Plot each device over the entire time with rolling mean
         for partial, label in partial_strings.items():
-            platform_data = listen_time_per_device[listen_time_per_device['platform'].str.contains(partial, case=False)].copy()
+            platform_data = listen_time_per_device[
+                listen_time_per_device["platform"].str.contains(partial, case=False)
+            ].copy()
 
             # Ensure the data is continuous by reindexing and filling missing values
-            platform_data.set_index('endTime', inplace=True)
-            platform_data = platform_data.resample('D').sum().fillna(0).reset_index()
+            platform_data.set_index("endTime", inplace=True)
+            platform_data = platform_data.resample("D").sum().fillna(0).reset_index()
 
             # Calculate the rolling mean
-            platform_data['rolling_mean'] = platform_data['msPlayed'].rolling(window=rolling_window).mean()
+            platform_data["rolling_mean"] = (
+                platform_data["msPlayed"].rolling(window=rolling_window).mean()
+            )
 
             # Plot the data
-            plt.plot(platform_data['endTime'], platform_data['rolling_mean'] / 3600000, label=label)
+            plt.plot(
+                platform_data["endTime"],
+                platform_data["rolling_mean"] / 3600000,
+                label=label,
+            )
 
         plt.legend(fontsize=20)
         plt.xlabel("Date", fontsize=15)
