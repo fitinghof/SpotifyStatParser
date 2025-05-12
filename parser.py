@@ -185,7 +185,7 @@ class WrappedMaker:
 
         for artist, track in reversed(self._top_songs.index):
             song_data = top_songs_daily.query(
-                f"artistName == '{artist}' & trackName == '{track}'"
+                f"artistName == @artist & trackName == @track"
             ).reset_index()
             song_data["rolling_playCount"] = (
                 song_data["playCount"].rolling(window=rolling_window).mean()
@@ -270,9 +270,7 @@ class WrappedMaker:
         plt.figure(figsize=(16, 9))
 
         for artist in reversed(self._top_artists.index):
-            song_data = top_artists_daily.query(
-                f"artistName == '{artist}'"
-            ).reset_index()
+            song_data = top_artists_daily.query(f"artistName == @artist").reset_index()
             song_data["rolling_playcount"] = (
                 song_data["playCount"].rolling(window=rolling_window).mean()
             )
@@ -422,6 +420,8 @@ class WrappedMaker:
             .unstack(fill_value=0)
         )
 
+        grouped = grouped.reindex(columns=[False, True], fill_value=0)
+
         grouped["total"] = grouped[True] + grouped[False]
 
         grouped = grouped[grouped["total"] >= least_amount_listens]
@@ -518,6 +518,8 @@ class WrappedMaker:
             .unstack(fill_value=0)
             .head(nrof_songs)
         )
+
+        grouped = grouped.reindex(columns=[False, True], fill_value=0)
 
         grouped["total"] = grouped[True] + grouped[False]
 
